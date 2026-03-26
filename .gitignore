@@ -1,0 +1,3 @@
+# Metadata-only repository; keep release binaries out of this repo
+artifacts/
+*.zip

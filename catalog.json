@@ -1,0 +1,28 @@
+{
+  "repositoryId": "emma-test",
+  "name": "EMMA Test Repository",
+  "sourceRepositoryUrl": "https://github.com/5EUS/emma-test-repo",
+  "generatedAtUtc": "2026-03-26T00:00:00Z",
+  "apiVersion": "1",
+  "plugins": [
+    {
+      "pluginId": "emma.plugin.test",
+      "name": "EMMA Test Plugin",
+      "description": "Test plugin catalog entry for EMMA development.",
+      "author": "EMMA",
+      "sourceRepositoryUrl": "https://github.com/5EUS/emma-test-plugin",
+      "releases": [
+        {
+          "version": "0.1.0",
+          "assetUrl": "https://github.com/5EUS/emma-test-plugin/releases/download/v0.1.0/emma.plugin.test_0.1.0_linux-x64.zip",
+          "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+          "platforms": [
+            "linux"
+          ],
+          "isPrerelease": true,
+          "notes": "Placeholder hash until first standalone release is published to emma-test-plugin."
+        }
+      ]
+    }
+  ]
+}
