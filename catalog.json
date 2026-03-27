@@ -2,7 +2,7 @@
   "repositoryId": "emma-test",
   "name": "EMMA Test Repository",
   "sourceRepositoryUrl": "https://github.com/5EUS/emma-test-repo",
-  "generatedAtUtc": "2026-03-27T21:15:12Z",
+  "generatedAtUtc": "2026-03-27T22:52:32Z",
   "apiVersion": "1",
   "plugins": [
     {
@@ -75,6 +75,24 @@
       "author": "EMMA",
       "sourceRepositoryUrl": "https://github.com/5EUS/emma-video-test",
       "releases": [
+        {
+          "version": "0.1.3-wasm",
+          "assetUrl": "https://github.com/5EUS/emma-video-test/releases/download/v0.1.3/emma.video.test_0.1.3_wasm.zip",
+          "sha256": "6faa04021a0b71743fd35361d56d7c25d0250f34f5198112231320d13c33acad",
+          "platforms": [
+            "wasm"
+          ],
+          "isPrerelease": false
+        },
+        {
+          "version": "0.1.3",
+          "assetUrl": "https://github.com/5EUS/emma-video-test/releases/download/v0.1.3/emma.video.test_0.1.3_linux-x64.zip",
+          "sha256": "0776dfaec0ed70177a4c03f865e7b7332122a13f64a980d68af6712e5bb322d4",
+          "platforms": [
+            "linux"
+          ],
+          "isPrerelease": false
+        },
         {
           "version": "0.1.2-wasm",
           "assetUrl": "https://github.com/5EUS/emma-video-test/releases/download/v0.1.2/emma.video.test_0.1.2_wasm.zip",
