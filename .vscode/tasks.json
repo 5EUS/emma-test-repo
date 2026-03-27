@@ -1,0 +1,17 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "dry-run-latest-mode",
+			"type": "shell",
+			"command": "bash scripts/update-all-cataloged-plugins.sh --from-github-latest --platforms linux,wasm --primary-platform linux --dry-run",
+			"isBackground": false
+		},
+		{
+			"label": "validate-catalog-strict-after-mode",
+			"type": "shell",
+			"command": "bash scripts/validate-catalog.sh --strict-placeholders",
+			"isBackground": false
+		}
+	]
+}

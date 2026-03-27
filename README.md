@@ -13,6 +13,7 @@ It does not store plugin ZIP artifacts.
 - Repository ID: `emma-test`
 - Validation script: `scripts/validate-catalog.sh`
 - Update helper: `scripts/update-catalog-release.sh`
+- Batch update helper: `scripts/update-all-cataloged-plugins.sh`
 
 ## Artifact hosting model
 
@@ -52,6 +53,52 @@ bash scripts/validate-catalog.sh --strict-placeholders
 ```
 
 4. Commit and push.
+
+## Batch update all cataloged plugins
+
+For bulk updates across every unique `pluginId` in `catalog.json`, use:
+
+```bash
+bash scripts/update-all-cataloged-plugins.sh \
+  --version 0.1.4 \
+  --tag v0.1.4 \
+  --platforms linux,wasm \
+  --primary-platform linux
+```
+
+Notes:
+- Primary platform keeps `--version` as-is (for example `0.1.4`).
+- Other platforms get `-<platform>` suffix (for example `0.1.4-wasm`).
+- Asset names are built from plugin metadata using this pattern:
+  - `<pluginId>_<version>_<platform-suffix>.zip`
+- Default platform suffix mapping is:
+  - `linux=linux-x64`
+  - `wasm=wasm`
+
+Preview commands without writing changes:
+
+```bash
+bash scripts/update-all-cataloged-plugins.sh \
+  --version 0.1.4 \
+  --dry-run
+```
+
+Use latest GitHub release per plugin instead of passing a version:
+
+```bash
+bash scripts/update-all-cataloged-plugins.sh \
+  --from-github-latest \
+  --platforms linux,wasm \
+  --primary-platform linux
+```
+
+Include prerelease tags in latest-mode selection:
+
+```bash
+bash scripts/update-all-cataloged-plugins.sh \
+  --from-github-latest \
+  --include-prerelease
+```
 
 ## CI
 
