@@ -17,6 +17,7 @@ Usage:
     [--primary-platform <platform>] \
     [--platform-suffixes <platform=suffix,...>] \
     [--prerelease <true|false>] \
+    [--continue-on-error] \
     [--dry-run]
 
 Description:
@@ -59,6 +60,7 @@ PRIMARY_PLATFORM="linux"
 PLATFORM_SUFFIXES="linux=linux-x64,wasm=wasm"
 IS_PRERELEASE="false"
 DRY_RUN=0
+CONTINUE_ON_ERROR=0
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
@@ -98,6 +100,10 @@ while [[ $# -gt 0 ]]; do
       DRY_RUN=1
       shift
       ;;
+    --continue-on-error)
+      CONTINUE_ON_ERROR=1
+      shift
+      ;;
     -h|--help)
       usage
       exit 0
@@ -109,6 +115,8 @@ while [[ $# -gt 0 ]]; do
       ;;
   esac
 done
+
+failures=()
 
 if [[ "$FROM_GITHUB_LATEST" -eq 0 && -z "$VERSION" ]]; then
   echo "--version is required." >&2
@@ -226,7 +234,10 @@ for asset in assets:
 PY
 }
 
-mapfile -t plugin_rows < <(
+plugin_rows=()
+while IFS= read -r line; do
+  plugin_rows+=("$line")
+done < <(
   python3 - "$CATALOG_PATH" <<'PY'
 import json
 import sys
@@ -257,7 +268,8 @@ fi
 IFS=',' read -r -a platform_arr <<< "$PLATFORMS"
 IFS=',' read -r -a suffix_arr <<< "$PLATFORM_SUFFIXES"
 
-declare -A suffix_map=()
+suffix_keys=()
+suffix_vals=()
 for pair in "${suffix_arr[@]}"; do
   trimmed="$(echo "$pair" | xargs)"
   [[ -z "$trimmed" ]] && continue
@@ -267,7 +279,8 @@ for pair in "${suffix_arr[@]}"; do
     echo "Invalid --platform-suffixes entry: $pair" >&2
     exit 1
   fi
-  suffix_map["$key"]="$val"
+  suffix_keys+=("$key")
+  suffix_vals+=("$val")
 done
 
 for platform in "${platform_arr[@]}"; do
@@ -275,7 +288,14 @@ for platform in "${platform_arr[@]}"; do
   if [[ -z "$platform" ]]; then
     continue
   fi
-  if [[ -z "${suffix_map[$platform]:-}" ]]; then
+  has_suffix=0
+  for i in "${!suffix_keys[@]}"; do
+    if [[ "${suffix_keys[$i]}" == "$platform" ]]; then
+      has_suffix=1
+      break
+    fi
+  done
+  if [[ "$has_suffix" -eq 0 ]]; then
     echo "Missing suffix mapping for platform '$platform'." >&2
     echo "Pass --platform-suffixes to define it, e.g. linux=linux-x64,wasm=wasm" >&2
     exit 1
@@ -289,10 +309,13 @@ for row in "${plugin_rows[@]}"; do
   latest_tag=""
   latest_version=""
   latest_prerelease="$IS_PRERELEASE"
-  declare -A latest_assets=()
+  latest_assets=()
 
   if [[ "$FROM_GITHUB_LATEST" -eq 1 ]]; then
-    mapfile -t latest_lines < <(fetch_latest_release_lines "$source_repo" "$INCLUDE_PRERELEASE")
+    latest_lines=()
+    while IFS= read -r line; do
+      latest_lines+=("$line")
+    done < <(fetch_latest_release_lines "$source_repo" "$INCLUDE_PRERELEASE")
     for line in "${latest_lines[@]}"; do
       IFS=$'\t' read -r kind a b c <<< "$line"
       if [[ "$kind" == "ERROR" ]]; then
@@ -304,7 +327,7 @@ for row in "${plugin_rows[@]}"; do
         latest_version="$b"
         latest_prerelease="$c"
       elif [[ "$kind" == "ASSET" ]]; then
-        latest_assets["$a"]="$b"
+        latest_assets+=("$a"$'\t'"$b")
       fi
     done
 
@@ -333,11 +356,28 @@ for row in "${plugin_rows[@]}"; do
       release_version="${base_version}-${platform}"
     fi
 
-    suffix="${suffix_map[$platform]}"
+    suffix=""
+    for i in "${!suffix_keys[@]}"; do
+      if [[ "${suffix_keys[$i]}" == "$platform" ]]; then
+        suffix="${suffix_vals[$i]}"
+        break
+      fi
+    done
+    if [[ -z "$suffix" ]]; then
+      echo "Missing suffix mapping for platform '$platform'." >&2
+      exit 1
+    fi
     asset_name="${plugin_id}_${base_version}_${suffix}.zip"
 
     if [[ "$FROM_GITHUB_LATEST" -eq 1 ]]; then
-      asset_url="${latest_assets[$asset_name]:-}"
+      asset_url=""
+      for asset_row in "${latest_assets[@]}"; do
+        asset_key="${asset_row%%$'\t'*}"
+        if [[ "$asset_key" == "$asset_name" ]]; then
+          asset_url="${asset_row#*$'\t'}"
+          break
+        fi
+      done
       if [[ -z "$asset_url" ]]; then
         echo "Missing asset '$asset_name' in latest release '$base_tag' for plugin '$plugin_id'." >&2
         exit 1
@@ -357,15 +397,40 @@ for row in "${plugin_rows[@]}"; do
     )
 
     if [[ "$DRY_RUN" -eq 1 ]]; then
+      echo "Preparing update: plugin=$plugin_id platform=$platform release_version=$release_version"
+      echo "  source_repo=$source_repo"
+      echo "  asset_url=$asset_url"
       printf 'DRY RUN: '
       printf '%q ' "${cmd[@]}"
       printf '\n'
     else
-      "${cmd[@]}"
+      echo "Updating plugin=$plugin_id platform=$platform release_version=$release_version"
+      echo "  asset_url=$asset_url"
+      if ! "${cmd[@]}"; then
+        message="plugin=$plugin_id platform=$platform version=$release_version asset_url=$asset_url"
+        if [[ "$CONTINUE_ON_ERROR" -eq 1 ]]; then
+          echo "WARN: update failed, continuing: $message" >&2
+          failures+=("$message")
+          continue
+        fi
+
+        echo "ERROR: update failed: $message" >&2
+        exit 1
+      fi
     fi
   done
 done
 
 if [[ "$DRY_RUN" -eq 0 ]]; then
+  if [[ ${#failures[@]} -gt 0 ]]; then
+    echo "Completed with ${#failures[@]} failure(s):" >&2
+    for failure in "${failures[@]}"; do
+      echo "  - $failure" >&2
+    done
+
+    if [[ "$CONTINUE_ON_ERROR" -eq 0 ]]; then
+      exit 1
+    fi
+  fi
   echo "All cataloged plugins updated for version $VERSION."
 fi
