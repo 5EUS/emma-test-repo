@@ -151,7 +151,9 @@ fetch_latest_release_lines() {
 import json
 import os
 import re
+import ssl
 import sys
+import urllib.error
 import urllib.request
 
 source_repo = sys.argv[1].strip()
@@ -177,8 +179,43 @@ if token:
   headers["Authorization"] = f"Bearer {token}"
 
 req = urllib.request.Request(api_url, headers=headers)
+
+def _is_tls_error(error):
+  reason = getattr(error, "reason", None)
+  return isinstance(reason, ssl.SSLError) or isinstance(reason, ssl.SSLCertVerificationError)
+
+def _fetch_with_tls_fallback(request):
+  try:
+    return urllib.request.urlopen(request, timeout=30)
+  except urllib.error.URLError as ex:
+    if not _is_tls_error(ex):
+      raise
+
+    # Retry with certifi CA bundle when system trust store is unavailable/misconfigured.
+    certifi_error = None
+    try:
+      import certifi  # type: ignore
+      context = ssl.create_default_context(cafile=certifi.where())
+      return urllib.request.urlopen(request, timeout=30, context=context)
+    except Exception as cert_ex:
+      certifi_error = cert_ex
+
+    # Explicit opt-in escape hatch for constrained CI images.
+    allow_insecure = os.getenv("EMMA_ALLOW_INSECURE_GITHUB_TLS", "").strip().lower() in ("1", "true", "yes")
+    if allow_insecure:
+      context = ssl._create_unverified_context()  # noqa: SLF001
+      return urllib.request.urlopen(request, timeout=30, context=context)
+
+    hint = (
+      "TLS certificate validation failed. Install/update CA certificates or install the 'certifi' package. "
+      "As a last resort, set EMMA_ALLOW_INSECURE_GITHUB_TLS=true to bypass verification."
+    )
+    if certifi_error is not None:
+      raise RuntimeError(f"{ex}. {hint} certifi fallback failed: {certifi_error}")
+    raise RuntimeError(f"{ex}. {hint}")
+
 try:
-  with urllib.request.urlopen(req, timeout=30) as resp:
+  with _fetch_with_tls_fallback(req) as resp:
     body = resp.read().decode("utf-8")
 except Exception as ex:
   print(f"ERROR\tFailed to query GitHub releases for {owner}/{repo}: {ex}")
