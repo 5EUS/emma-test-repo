@@ -1,0 +1,23 @@
+{
+  "repositoryId": "emma-test",
+  "version": 1,
+  "issuedAtUtc": "2026-04-04T00:00:00Z",
+  "rootKeyId": "emma-root-2026",
+  "delegations": [
+    {
+      "keyId": "emma-test-shared-release-2026-q2",
+      "publicKeyPem": "-----BEGIN PUBLIC KEY-----\nMIIBojANBgkqhkiG9w0BAQEFAAOCAY8AMIIBigKCAYEAs1eQT/2GbgfNtz+5VQGm\nxE9fi2ihvgSxecRaszHsRBf6grCMSAZdLYREaAJs/kUxp3TndWVDCJkVgripRBxv\nE0CFEN6RK1QnP2aE0gYjReRMICWqKLE+m9lqXdn0pgkfwRWxzJd748GhriL0OTb4\nwktbSdZRhzGigPCo2GORfgAnLJa2EAg+XnQ56zfTthKs1FWCHnajrlLL8N5rsBQX\nyiyw6+kFmObO33sLesSPzna7XIll2JZhsF8DDRqPcgpzjIJP2u5N0zkNoivLALug\n3AzDsVVxreV8cGUPevAHr3wkHH5W05nlb5Teg86rEsYg4umVkditxhv5t9HWMvAq\nOr+N7OmWc25J566F7ghfSkaXum3UBdG2LZVYCSDWaZnzpgg//IoINwcuKmfb+Hfc\nzLeAj+XYTmlupzJgiDpc4vuraCDUnxT4l1NloKMvqV/yobSh1Ql3Q1ufjPTvy822\nZncpSl/8bWxZTgF4EiZUsgO1L02qXWEhgVQrqb4/kcZlAgMBAAE=\n-----END PUBLIC KEY-----",
+      "scopes": [
+        "emma.plugin.test",
+        "emma.video.test"
+      ],
+      "validFromUtc": "2026-04-01T00:00:00Z",
+      "validUntilUtc": "2026-07-01T00:00:00Z",
+      "status": "active"
+    }
+  ],
+  "signature": {
+    "algorithm": "rsa-sha256",
+    "value": "0NRiRD1jhMZ9oRKaVlbS9zLu9HUqYPhnVG2GPWORdTBOo8GzeeoQ0E9lImX8zH1VXm31WwuV3/neEhLkpmsZhjZG57BH2cYaO4QsXjAcxjqOMQNRQz95NE/eBLbW4gkgz2frbPZlQ7C1jwEKUSuVeQVY0bHjU1KzLoRSwEwxliJByuoPgp7Ygl5+ScrxXI/avAZpPe4eVsvC9Gq44m2fhCNS4+gZofUIAEhgO8rjeodr7lc7TgOskFI8xBN9W1GvBVgUgErTTbqXbnS0hcsNpDE1/PkYou5X96JyMlurEi3XtaGJZlLGMK5u28s/9mJeo6mo4uecv1ujzSs3Ut3Jjo2y60YEMH/fZNvFUTT09DprgQnin6vnXrSGuvd8WXynGj63rOB88d6zQZk8+zXGJDeOhy2vJ7uOZyw72O+y+3XX7E7sgzt8Zqtp2nZTYtYYlXitnpPWhYvCGh85s0+zdg5bqy745G3Lv1U5lp+3mM+zgolt7PGZ3dFwZbe5jpC4"
+  }
+}

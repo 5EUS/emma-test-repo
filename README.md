@@ -14,6 +14,34 @@ It does not store plugin ZIP artifacts.
 - Validation script: `scripts/validate-catalog.sh`
 - Update helper: `scripts/update-catalog-release.sh`
 - Batch update helper: `scripts/update-all-cataloged-plugins.sh`
+- Delegation metadata: `trust/emma-test.delegations.json`
+- Root trust directory: `trust/roots/`
+
+## Delegated signing trust model
+
+This repository publishes root-signed delegation metadata for plugin signer authorization scopes.
+
+Generate root/delegated keys:
+
+```bash
+bash scripts/generate-signing-keypair.sh --out-dir trust/roots --name emma-root-2026
+bash scripts/generate-signing-keypair.sh --out-dir .keys --name emma-test-shared-release-2026-q2
+```
+
+Update `trust/emma-test.delegations.json` with delegated public keys and scopes, then sign it with the root private key:
+
+```bash
+export EMMA_PLUGIN_ROOT_SIGNING_PRIVATE_KEY_BASE64="<base64 root private pem>"
+bash scripts/sign-delegation-file.sh trust/emma-test.delegations.json
+```
+
+Runtime expects root public keys as `trust/roots/<rootKeyId>.pem` and repository delegation metadata in `trust/<repositoryId>.delegations.json`.
+
+Plugin release pipelines should sign manifests with delegated key metadata:
+
+- `EMMA_PLUGIN_SIGNING_KEY_ID`
+- `EMMA_PLUGIN_REPOSITORY_ID`
+- `EMMA_PLUGIN_SIGNING_PRIVATE_KEY_BASE64`
 
 ## Artifact hosting model
 
