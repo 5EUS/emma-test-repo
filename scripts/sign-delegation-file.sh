@@ -18,16 +18,33 @@ if [[ ! -f "$DELEGATION_PATH" ]]; then
 fi
 
 KEY_MATERIAL=""
-decode_private_key_material() {
+normalize_key_value() {
   local value="$1"
+
+  value="${value//$'\r'/}"
+  if [[ ${#value} -ge 2 && "${value:0:1}" == '"' && "${value: -1}" == '"' ]]; then
+    value="${value:1:${#value}-2}"
+  elif [[ ${#value} -ge 2 && "${value:0:1}" == "'" && "${value: -1}" == "'" ]]; then
+    value="${value:1:${#value}-2}"
+  fi
+
+  printf '%s' "$value"
+}
+
+decode_private_key_material() {
+  local value
   local decoded
+
+  value="$(normalize_key_value "$1")"
 
   if [[ "$value" == *"BEGIN"*"PRIVATE KEY"* ]]; then
     printf '%s' "$value"
     return 0
   fi
 
-  local normalized="${value//\\n/$'\n'}"
+  local normalized
+  normalized="${value//\\n/$'\n'}"
+  normalized="$(normalize_key_value "$normalized")"
   if [[ "$normalized" == *"BEGIN"*"PRIVATE KEY"* ]]; then
     printf '%s' "$normalized"
     return 0
@@ -35,13 +52,13 @@ decode_private_key_material() {
 
   if decoded="$(printf '%s' "$value" | base64 --decode 2>/dev/null)" \
     && [[ "$decoded" == *"BEGIN"*"PRIVATE KEY"* ]]; then
-    printf '%s' "$decoded"
+    printf '%s' "$(normalize_key_value "$decoded")"
     return 0
   fi
 
   if decoded="$(printf '%s' "$value" | openssl base64 -d -A 2>/dev/null)" \
     && [[ "$decoded" == *"BEGIN"*"PRIVATE KEY"* ]]; then
-    printf '%s' "$decoded"
+    printf '%s' "$(normalize_key_value "$decoded")"
     return 0
   fi
 
@@ -68,6 +85,12 @@ KEY_FILE="$(mktemp)"
 trap 'rm -f "$KEY_FILE"' EXIT
 umask 077
 printf '%s\n' "$KEY_MATERIAL" > "$KEY_FILE"
+
+if ! openssl pkey -in "$KEY_FILE" -noout >/dev/null 2>&1; then
+  echo "Root signing key material could not be parsed as a valid private key." >&2
+  echo "Ensure the secret contains an unencrypted PEM private key (raw PEM or base64 PEM)." >&2
+  exit 1
+fi
 
 export DELEGATION_PATH
 export KEY_FILE
