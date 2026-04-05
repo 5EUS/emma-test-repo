@@ -2,7 +2,7 @@
   "repositoryId": "emma-test",
   "name": "EMMA Test Repository",
   "sourceRepositoryUrl": "https://github.com/5EUS/emma-test-repo",
-  "generatedAtUtc": "2026-04-01T20:21:10Z",
+  "generatedAtUtc": "2026-04-05T04:20:01Z",
   "apiVersion": "1",
   "plugins": [
     {
@@ -12,6 +12,24 @@
       "author": "EMMA",
       "sourceRepositoryUrl": "https://github.com/5EUS/emma-test-plugin",
       "releases": [
+        {
+          "version": "0.1.14-wasm",
+          "assetUrl": "https://github.com/5EUS/emma-test-plugin/releases/download/v0.1.14/emma.plugin.test_0.1.14_wasm.zip",
+          "sha256": "90b23b9264d11819c35ab3f4cc73e51ff8f812d0721b96a962e972c81cc1f660",
+          "platforms": [
+            "wasm"
+          ],
+          "isPrerelease": false
+        },
+        {
+          "version": "0.1.14",
+          "assetUrl": "https://github.com/5EUS/emma-test-plugin/releases/download/v0.1.14/emma.plugin.test_0.1.14_linux-x64.zip",
+          "sha256": "f384ffa92b19d52421928ab2590121b0eddbb1927a809afc692fe8c1f41aa46f",
+          "platforms": [
+            "linux"
+          ],
+          "isPrerelease": false
+        },
         {
           "version": "0.1.12-wasm",
           "assetUrl": "https://github.com/5EUS/emma-test-plugin/releases/download/v0.1.12/emma.plugin.test_0.1.12_wasm.zip",
@@ -66,6 +84,24 @@
       "author": "EMMA",
       "sourceRepositoryUrl": "https://github.com/5EUS/emma-video-test",
       "releases": [
+        {
+          "version": "0.1.14-wasm",
+          "assetUrl": "https://github.com/5EUS/emma-video-test/releases/download/v0.1.14/emma.video.test_0.1.14_wasm.zip",
+          "sha256": "8855470c7c44a6f1db5b6a622450933cc3bd652836f6ebf826243ae0f282aa32",
+          "platforms": [
+            "wasm"
+          ],
+          "isPrerelease": false
+        },
+        {
+          "version": "0.1.14",
+          "assetUrl": "https://github.com/5EUS/emma-video-test/releases/download/v0.1.14/emma.video.test_0.1.14_linux-x64.zip",
+          "sha256": "1b3ae6cb481ef7a6d7cb0bae24840a0f1e9afcaea6741702eb047f8b9152b260",
+          "platforms": [
+            "linux"
+          ],
+          "isPrerelease": false
+        },
         {
           "version": "0.1.13-wasm",
           "assetUrl": "https://github.com/5EUS/emma-video-test/releases/download/v0.1.13/emma.video.test_0.1.13_wasm.zip",
