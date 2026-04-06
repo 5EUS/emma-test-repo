@@ -13,4 +13,4 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Validate catalog
-        run: bash scripts/validate-catalog.sh
+        run: bash scripts/validate-catalog.sh --strict-placeholders

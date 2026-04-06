@@ -1,0 +1,50 @@
+name: Sync Catalog From Releases
+
+on:
+  workflow_dispatch:
+    inputs:
+      include_prerelease:
+        description: Include prereleases when selecting latest GitHub release
+        required: false
+        default: "false"
+  schedule:
+    - cron: "17 3 * * *"
+
+permissions:
+  contents: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Sync catalog from latest releases
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          INCLUDE_PRERELEASE: ${{ github.event.inputs.include_prerelease || 'false' }}
+        run: |
+          set -euo pipefail
+          ARGS=(--from-github-latest --platforms linux,wasm --primary-platform linux)
+          if [[ "${INCLUDE_PRERELEASE}" == "true" ]]; then
+            ARGS+=(--include-prerelease)
+          fi
+          bash scripts/update-all-cataloged-plugins.sh "${ARGS[@]}"
+
+      - name: Validate catalog (strict)
+        run: bash scripts/validate-catalog.sh --strict-placeholders
+
+      - name: Commit and push updates
+        run: |
+          set -euo pipefail
+          if git diff --quiet -- catalog.json; then
+            echo "No catalog changes detected."
+            exit 0
+          fi
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add catalog.json
+          git commit -m "chore(catalog): sync latest plugin releases"
+          git push
