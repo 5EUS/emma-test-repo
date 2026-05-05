@@ -2,7 +2,7 @@
   "repositoryId": "emma-test",
   "name": "EMMA Test Repository",
   "sourceRepositoryUrl": "https://github.com/5EUS/emma-test-repo",
-  "generatedAtUtc": "2026-05-05T04:22:16Z",
+  "generatedAtUtc": "2026-05-05T17:48:48Z",
   "apiVersion": "1",
   "plugins": [
     {
@@ -12,6 +12,24 @@
       "author": "EMMA",
       "sourceRepositoryUrl": "https://github.com/5EUS/emma-test-plugin",
       "releases": [
+        {
+          "version": "0.1.20-wasm",
+          "assetUrl": "https://github.com/5EUS/emma-test-plugin/releases/download/v0.1.20/emma.plugin.test_0.1.20_wasm.zip",
+          "sha256": "93ae24136d5af87d1bfb857f24c88a8b4d053f8a9c38f392119d82fdfe9aecb9",
+          "platforms": [
+            "wasm"
+          ],
+          "isPrerelease": false
+        },
+        {
+          "version": "0.1.20",
+          "assetUrl": "https://github.com/5EUS/emma-test-plugin/releases/download/v0.1.20/emma.plugin.test_0.1.20_linux-x64.zip",
+          "sha256": "82543e18491a5c447fb54ae6159666865d9622a26bb20ab930d450a490dafdf9",
+          "platforms": [
+            "linux"
+          ],
+          "isPrerelease": false
+        },
         {
           "version": "0.1.17-wasm",
           "assetUrl": "https://github.com/5EUS/emma-test-plugin/releases/download/v0.1.17/emma.plugin.test_0.1.17_wasm.zip",
